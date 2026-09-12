@@ -43,6 +43,13 @@ func versionString() string {
 	return version
 }
 
+// resolveVersion is a variable so a test can prove -version actually calls it.
+//
+// It printed the raw variable for a whole release while every test passed: versionString
+// was covered by tests that called it directly, and the single line that was supposed to
+// use it never did. Testing a helper is not testing that anything reaches the helper.
+var resolveVersion = versionString
+
 // Exit codes, so this is usable as a CI gate.
 const (
 	exitHeld    = 0 // the limiter held, or there was nothing to test
@@ -97,7 +104,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return exitUnknown
 	}
 	if *showVersion {
-		fmt.Fprintf(stdout, "ratecheck %s\n", version)
+		fmt.Fprintf(stdout, "ratecheck %s\n", resolveVersion())
 		return exitHeld
 	}
 	if flags.NArg() != 1 {

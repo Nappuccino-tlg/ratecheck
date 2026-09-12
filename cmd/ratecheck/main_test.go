@@ -196,6 +196,24 @@ func TestVersion(t *testing.T) {
 	}
 }
 
+func TestTheVersionFlagGoesThroughTheResolver(t *testing.T) {
+	// v0.1.1 shipped printing the raw variable, so a binary from `go install` said "dev"
+	// even though the resolver would have found the module version. Every test passed:
+	// versionString was covered directly, and nothing checked that -version reached it.
+	//
+	// Setting `version` cannot catch that -- the resolver returns it unchanged when it is
+	// set, so both the right and the wrong line print the same thing. Only replacing the
+	// resolver itself can tell them apart.
+	original := resolveVersion
+	t.Cleanup(func() { resolveVersion = original })
+	resolveVersion = func() string { return "from-the-resolver" }
+
+	_, stdout, _ := exec(t, "-version")
+	if stdout != "ratecheck from-the-resolver\n" {
+		t.Errorf("stdout = %q; -version is not calling versionString()", stdout)
+	}
+}
+
 func TestUsageProblemsExitTwo(t *testing.T) {
 	cases := []struct {
 		name string
