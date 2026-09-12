@@ -59,6 +59,17 @@ jobs:
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck ./...
 
+      - name: Nothing exists only for the tests
+        # -tests=false means test files do not count as usage, so anything the real
+        # program never reaches is reported as unused.
+        #
+        # This is here because of a bug it would have caught: versionString was written,
+        # tested, and released, and the one line that was supposed to call it printed the
+        # raw variable instead. Coverage was no help -- both the helper and the line that
+        # should have called it were covered, just not connected. A helper nothing in the
+        # program reaches is a helper that does nothing.
+        run: staticcheck -tests=false ./...
+
   build:
     # The thing people download is a binary, so every release target gets compiled on
     # every change rather than discovered to be broken at tag time.
