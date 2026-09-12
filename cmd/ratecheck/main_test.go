@@ -321,3 +321,32 @@ func TestStoppingIsReportedAsStoppedRatherThanAsAFailure(t *testing.T) {
 		t.Errorf("stderr = %q", stderr.String())
 	}
 }
+
+func TestAStampedVersionWins(t *testing.T) {
+	// The release build sets this with -ldflags, and it must beat whatever the module
+	// system thinks, because a binary built from a tag is the tag.
+	original := version
+	t.Cleanup(func() { version = original })
+
+	version = "v9.9.9"
+	if got := versionString(); got != "v9.9.9" {
+		t.Errorf("versionString() = %q, want the stamped value", got)
+	}
+}
+
+func TestAnUnstampedBinaryFindsItsModuleVersion(t *testing.T) {
+	// Without a stamp, `go install ...@v0.1.0` should still report v0.1.0 rather than
+	// "dev". Under `go test` there is no module version to find, so the honest fallback
+	// is what this can actually assert.
+	original := version
+	t.Cleanup(func() { version = original })
+
+	version = "dev"
+	got := versionString()
+	if got == "" {
+		t.Fatal("versionString() returned nothing")
+	}
+	if got != "dev" && !strings.HasPrefix(got, "v") {
+		t.Errorf("versionString() = %q, want either the fallback or a module version", got)
+	}
+}

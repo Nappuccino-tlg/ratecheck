@@ -14,14 +14,34 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"time"
 
 	"github.com/Nappuccino-tlg/ratecheck/internal/probe"
 )
 
-// version is stamped by the release build; a source build says so honestly.
+// version is stamped by the release build with -ldflags. Left alone otherwise, and
+// resolved at runtime by versionString.
 var version = "dev"
+
+// versionString answers for all three ways this binary comes into existence.
+//
+// A release binary carries the tag, stamped in at build time. One from `go install
+// ...@v0.1.0` carries nothing, but Go records the module version it was built from and
+// that is the same answer -- so read it rather than making everyone who installs the
+// normal way see "dev". A build from a working tree really is dev, and says so.
+func versionString() string {
+	if version != "dev" {
+		return version
+	}
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if v := info.Main.Version; v != "" && v != "(devel)" {
+			return v
+		}
+	}
+	return version
+}
 
 // Exit codes, so this is usable as a CI gate.
 const (
