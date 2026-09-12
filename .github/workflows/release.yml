@@ -1,0 +1,60 @@
+name: Release
+
+# Publishing is a tag, not a button. What ships is what the tag points at, rather than
+# whatever happened to be on someone's laptop.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.27"
+
+      - name: Test before shipping
+        run: go test -race ./...
+
+      - name: Build every target
+        run: |
+          version="${GITHUB_REF_NAME}"
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64; do
+            os=${target%/*}
+            arch=${target#*/}
+            out="dist/ratecheck_${version}_${os}_${arch}"
+            binary="ratecheck"
+            if [ "$os" = "windows" ]; then binary="ratecheck.exe"; fi
+
+            mkdir -p "build/$os-$arch"
+            # Trimpath so the archive does not carry the runner's directory layout, and
+            # the version stamped in so `ratecheck -version` matches the tag it came from.
+            GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build \
+              -trimpath \
+              -ldflags "-s -w -X main.version=${version}" \
+              -o "build/$os-$arch/$binary" ./cmd/ratecheck
+            cp README.md LICENSE "build/$os-$arch/"
+
+            if [ "$os" = "windows" ]; then
+              (cd "build/$os-$arch" && zip -qr "../../${out}.zip" .)
+            else
+              tar -czf "${out}.tar.gz" -C "build/$os-$arch" .
+            fi
+          done
+          (cd dist && sha256sum * > checksums.txt)
+          ls -l dist
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes

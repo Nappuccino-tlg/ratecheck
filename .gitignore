@@ -1,0 +1,5 @@
+/ratecheck
+/ratecheck.exe
+/dist/
+cover.out
+coverage.html
