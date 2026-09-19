@@ -13,6 +13,12 @@ go install github.com/Nappuccino-tlg/ratecheck/cmd/ratecheck@latest
 
 Or take a binary from [releases](https://github.com/Nappuccino-tlg/ratecheck/releases).
 
+![Two runs of ratecheck against the same limit of 20: the first reports LEAKED after 30 concurrent requests were all allowed, the second reports HELD after the same limit counted atomically allowed 19](docs/ratecheck.svg)
+
+<sub>Both runs are real output, against two servers with the same limit, the same window
+and the same latency. The only difference is whether the counter is read and written as one
+operation.</sub>
+
 ## The limiter that passes every test and does not work
 
 ```python
@@ -36,25 +42,11 @@ supposed to stop the credential stuffing and did not.
 
 `ratecheck` sends the batch.
 
-## What it looks like
+## Every finding names the fix
 
-```console
-$ ratecheck https://api.example.com/v1/things -H "Authorization: Bearer $TOKEN"
-Finding the limit, one request at a time
-  20 allowed, then 429
-  firing 30 at once, half again over the limit
-  warming 30 connections against the closed window
-Waiting for the quota to come back
-  quota returned after 10.011s
-Releasing 30 requests at once
+The image above cuts the verdict short. In full, a leak reads:
 
-  Limit        20 requests, then rejected (93ms)
-  Headers      limit 20
-  Retry-After  10
-  Window       quota returned after 10.011s
-  Burst        30 at once, 30 allowed, 0 rejected
-  Overlap      all 30 hit the wire within 1.2ms, 30 on a warm connection
-
+```
   LEAKED  A limit of 20 let 30 requests through when they arrived together.
 
           This is what a check-then-increment limiter looks like from
@@ -68,17 +60,8 @@ Releasing 30 requests at once
           single UPDATE ... RETURNING. Not a GET followed by a SET.
 ```
 
-The same run against the same limit, counted atomically:
-
-```
-  Burst        30 at once, 19 allowed, 11 rejected
-  Overlap      all 30 hit the wire within 0.6ms, 30 on a warm connection
-
-  HELD    30 at once, 19 allowed, and the budget was 19.
-```
-
-Every finding names the fix. A tool that reports a problem and leaves the answer as an
-exercise gets silenced by the first person in a hurry.
+A tool that reports a problem and leaves the answer as an exercise gets silenced by the
+first person in a hurry.
 
 ## The line that makes it a real test
 

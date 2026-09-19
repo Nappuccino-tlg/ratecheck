@@ -3,3 +3,6 @@
 /dist/
 cover.out
 coverage.html
+
+# Local preview config for the Claude Code browser pane
+.claude/

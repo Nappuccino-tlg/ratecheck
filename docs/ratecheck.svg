@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="510" viewBox="0 0 860 510" role="img" aria-label="ratecheck reporting LEAKED against a check-then-increment rate limiter, and HELD against the same limit counted atomically">
+<title>ratecheck: the same limit, one limiter that leaks and one that holds</title>
+<g transform="translate(0,0)">
+<rect x="0.5" y="0.5" width="859" height="315" rx="8" fill="#0d1117" stroke="#30363d"/>
+<path d="M0.5 8.5a8 8 0 0 1 8-8h843a8 8 0 0 1 8 8V28H0.5z" fill="#161b22"/>
+<line x1="0.5" y1="28" x2="859.5" y2="28" stroke="#30363d"/>
+<circle cx="18" cy="14.5" r="5" fill="#ff5f57"/>
+<circle cx="34" cy="14.5" r="5" fill="#febc2e"/>
+<circle cx="50" cy="14.5" r="5" fill="#28c840"/>
+<text x="430.0" y="18.5" fill="#7d8590" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="11" text-anchor="middle">ratecheck</text>
+<text x="18" y="48" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7ee787">$</tspan><tspan fill="#e6edf3"> ratecheck https://api.example.com/v1/things</tspan></text>
+<text x="18" y="88" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">Finding the limit, one request at a time</tspan></text>
+<text x="18" y="108" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  20 allowed, then 429</tspan></text>
+<text x="18" y="128" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  warming 30 connections against the closed window</tspan></text>
+<text x="18" y="148" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">Waiting for the quota to come back</tspan></text>
+<text x="18" y="168" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">Releasing 30 requests at once</tspan></text>
+<text x="18" y="208" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  Limit        </tspan><tspan fill="#c9d1d9">20 requests, then rejected (92ms)</tspan></text>
+<text x="18" y="228" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  Burst        </tspan><tspan fill="#c9d1d9">30 at once, 30 allowed, 0 rejected</tspan></text>
+<text x="18" y="248" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  Overlap      </tspan><tspan fill="#c9d1d9">all 30 hit the wire within 0.5ms, 30 on a warm connection</tspan></text>
+<text x="18" y="288" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#ff7b72" font-weight="700">  LEAKED</tspan><tspan fill="#c9d1d9">  A limit of 20 let 30 requests through when they arrived together.</tspan></text>
+</g>
+<g transform="translate(0,334)">
+<rect x="0.5" y="0.5" width="859" height="175" rx="8" fill="#0d1117" stroke="#30363d"/>
+<path d="M0.5 8.5a8 8 0 0 1 8-8h843a8 8 0 0 1 8 8V28H0.5z" fill="#161b22"/>
+<line x1="0.5" y1="28" x2="859.5" y2="28" stroke="#30363d"/>
+<circle cx="18" cy="14.5" r="5" fill="#ff5f57"/>
+<circle cx="34" cy="14.5" r="5" fill="#febc2e"/>
+<circle cx="50" cy="14.5" r="5" fill="#28c840"/>
+<text x="430.0" y="18.5" fill="#7d8590" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="11" text-anchor="middle">ratecheck</text>
+<text x="18" y="48" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7ee787">$</tspan><tspan fill="#e6edf3"> ratecheck https://api.example.com/v1/things</tspan><tspan fill="#7d8590">  # counted atomically</tspan></text>
+<text x="18" y="88" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  Burst        </tspan><tspan fill="#c9d1d9">30 at once, 19 allowed, 11 rejected</tspan></text>
+<text x="18" y="108" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#7d8590">  Overlap      </tspan><tspan fill="#c9d1d9">all 30 hit the wire within 0.6ms, 30 on a warm connection</tspan></text>
+<text x="18" y="148" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace" font-size="13.5" xml:space="preserve"><tspan fill="#3fb950" font-weight="700">  HELD</tspan><tspan fill="#c9d1d9">    30 at once, 19 allowed, and the budget was 19.</tspan></text>
+</g>
+</svg>
